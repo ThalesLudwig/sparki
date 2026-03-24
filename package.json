@@ -1,0 +1,30 @@
+{
+  "name": "sparki",
+  "version": "1.0.0",
+  "description": "SPARKi - AI-powered Jira ticket automation: analyzes tickets, designs, and orchestrates implementation",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sparki": "./dist/index.js"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "server": "tsx src/server.ts",
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "analyze": "tsx src/index.ts analyze",
+    "design": "tsx src/index.ts design"
+  },
+  "keywords": ["jira", "ai", "automation", "figma", "ollama"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "ollama": "^0.6.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
+  }
+}
