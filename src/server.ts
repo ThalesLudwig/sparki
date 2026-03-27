@@ -6,6 +6,7 @@ import * as http from 'http';
 import * as caseManager from './agents/case-manager/index.js';
 import * as ollama from './clients/ollama.js';
 import * as jira from './clients/jira.js';
+import { displayBanner } from './banner.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
@@ -101,6 +102,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 const startServer = async () => {
+  displayBanner();
   console.log('⚡ SPARKi Webhook Server');
   console.log('========================\n');
 
