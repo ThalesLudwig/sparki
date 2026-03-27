@@ -19,7 +19,7 @@ interface WebhookPayload {
 const parseBody = (req: http.IncomingMessage): Promise<WebhookPayload> => {
   return new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', chunk => (body += chunk));
+    req.on('data', (chunk) => (body += chunk));
     req.on('end', () => {
       try {
         resolve(body ? JSON.parse(body) : {});
@@ -49,10 +49,10 @@ const handleAnalyze = async (req: http.IncomingMessage, res: http.ServerResponse
     console.log(`\n📥 Webhook received for: ${issueKey}`);
 
     // Run analysis asynchronously - respond immediately
-    sendJson(res, 202, { 
-      status: 'accepted', 
+    sendJson(res, 202, {
+      status: 'accepted',
       message: `Analysis started for ${issueKey}`,
-      issueKey 
+      issueKey,
     });
 
     // Process in background
@@ -105,7 +105,7 @@ const startServer = async () => {
   console.log('========================\n');
 
   console.log('🔌 Checking connections...');
-  
+
   const ollamaOk = await ollama.checkConnection();
   if (!ollamaOk) {
     console.error('❌ Failed to connect to Ollama');

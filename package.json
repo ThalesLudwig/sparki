@@ -13,9 +13,17 @@
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "analyze": "tsx src/index.ts analyze",
-    "design": "tsx src/index.ts design"
+    "design": "tsx src/index.ts design",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
-  "keywords": ["jira", "ai", "automation", "figma", "ollama"],
+  "keywords": [
+    "jira",
+    "ai",
+    "automation",
+    "figma",
+    "ollama"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -25,6 +33,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0"
+    "@types/node": "^25.5.0",
+    "prettier": "^3.8.1"
   }
 }

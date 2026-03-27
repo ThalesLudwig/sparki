@@ -2,8 +2,19 @@ import * as jira from '../../clients/jira.js';
 import * as figma from '../../clients/figma.js';
 import * as ollama from '../../clients/ollama.js';
 import * as designAnalyzer from '../design-analyzer/index.js';
-import { SYSTEM_PROMPT, buildUserPrompt, SUMMARIZE_SYSTEM_PROMPT, buildSummarizePrompt } from './prompts.js';
-import type { TicketAnalysisResult, TicketAnalysisReport, MissingInfo, JiraIssue, JiraComment } from '../../types/index.js';
+import {
+  SYSTEM_PROMPT,
+  buildUserPrompt,
+  SUMMARIZE_SYSTEM_PROMPT,
+  buildSummarizePrompt,
+} from './prompts.js';
+import type {
+  TicketAnalysisResult,
+  TicketAnalysisReport,
+  MissingInfo,
+  JiraIssue,
+  JiraComment,
+} from '../../types/index.js';
 
 export interface AnalyzeOptions {
   context?: string;
@@ -23,7 +34,10 @@ const extractSection = (text: string, sectionName: string): string[] => {
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.match(/^\d+\./)) {
-      const item = trimmed.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+      const item = trimmed
+        .replace(/^[-*]\s*/, '')
+        .replace(/^\d+\.\s*/, '')
+        .trim();
       if (item && !item.toLowerCase().includes('none')) {
         items.push(item);
       }
@@ -34,14 +48,16 @@ const extractSection = (text: string, sectionName: string): string[] => {
 };
 
 const parseMissingInfo = (items: string[]): MissingInfo[] => {
-  return items.map(item => {
+  return items.map((item) => {
     const categoryMatch = item.match(/^\[([^\]]+)\]/);
     const importanceMatch = item.match(/\((critical|high|medium|low)\)/i);
     const descriptionMatch = item.match(/:\s*(.+)$/);
 
     return {
       category: categoryMatch ? categoryMatch[1] : 'General',
-      importance: (importanceMatch ? importanceMatch[1].toLowerCase() : 'medium') as MissingInfo['importance'],
+      importance: (importanceMatch
+        ? importanceMatch[1].toLowerCase()
+        : 'medium') as MissingInfo['importance'],
       description: descriptionMatch ? descriptionMatch[1] : item,
     };
   });
@@ -56,7 +72,11 @@ const parseCompletenessAssessment = (text: string): boolean => {
   return sectionText.includes('yes') && !sectionText.includes('no,');
 };
 
-const parseAnalysis = (rawAnalysis: string, issueKey: string, summary: string): TicketAnalysisResult => {
+const parseAnalysis = (
+  rawAnalysis: string,
+  issueKey: string,
+  summary: string
+): TicketAnalysisResult => {
   const missingInfoItems = extractSection(rawAnalysis, 'Missing Information');
   const questions = extractSection(rawAnalysis, 'Questions for Ticket Author');
   const recommendations = extractSection(rawAnalysis, 'Recommendations');
@@ -88,23 +108,25 @@ const analyzeDesignAssets = async (
       try {
         const { fileKey, nodeId } = figma.extractFigmaInfo(link);
         console.log(`   Analyzing Figma: ${fileKey}${nodeId ? ` (node: ${nodeId})` : ''}`);
-        
+
         const report = await designAnalyzer.analyze(link, {
           maxFrames: 3,
           context: ticketSummary,
           model,
         });
-        
+
         for (const analysis of report.analyses) {
           results.push(`### Figma Frame: ${analysis.frameName}`);
           if (analysis.scope.length > 0) {
             results.push(`**Scope:** ${analysis.scope.join(', ')}`);
           }
           if (analysis.missingSpecs.length > 0) {
-            results.push(`**Specifications:**\n${analysis.missingSpecs.map(s => `- ${s}`).join('\n')}`);
+            results.push(
+              `**Specifications:**\n${analysis.missingSpecs.map((s) => `- ${s}`).join('\n')}`
+            );
           }
           if (analysis.ambiguities.length > 0) {
-            results.push(`**Notes:**\n${analysis.ambiguities.map(a => `- ${a}`).join('\n')}`);
+            results.push(`**Notes:**\n${analysis.ambiguities.map((a) => `- ${a}`).join('\n')}`);
           }
           results.push('');
         }
@@ -122,14 +144,14 @@ const analyzeDesignAssets = async (
       try {
         console.log(`   Downloading: ${attachment.filename}`);
         const imageBuffer = await jira.downloadAttachment(attachment.url);
-        
+
         const analysis = await designAnalyzer.analyzeImage(
           imageBuffer,
           attachment.filename,
           ticketSummary,
           model
         );
-        
+
         results.push(designAnalyzer.formatImageAnalysis(analysis));
       } catch (error) {
         console.error(`   ❌ Failed to analyze attachment ${attachment.filename}: ${error}`);
@@ -152,18 +174,18 @@ const formatQuestionsAsComment = (analysis: TicketAnalysisResult): string => {
     '',
   ];
 
-  const critical = analysis.missingInformation.filter(m => m.importance === 'critical');
-  const high = analysis.missingInformation.filter(m => m.importance === 'high');
+  const critical = analysis.missingInformation.filter((m) => m.importance === 'critical');
+  const high = analysis.missingInformation.filter((m) => m.importance === 'high');
 
   if (critical.length > 0) {
     lines.push('🔴 CRITICAL (blocking implementation):');
-    critical.forEach(m => lines.push(`• [${m.category}] ${m.description}`));
+    critical.forEach((m) => lines.push(`• [${m.category}] ${m.description}`));
     lines.push('');
   }
 
   if (high.length > 0) {
     lines.push('🟠 HIGH PRIORITY:');
-    high.forEach(m => lines.push(`• [${m.category}] ${m.description}`));
+    high.forEach((m) => lines.push(`• [${m.category}] ${m.description}`));
     lines.push('');
   }
 
@@ -174,7 +196,9 @@ const formatQuestionsAsComment = (analysis: TicketAnalysisResult): string => {
   }
 
   lines.push('---');
-  lines.push('This analysis was generated automatically. Please update the ticket with the requested information.');
+  lines.push(
+    'This analysis was generated automatically. Please update the ticket with the requested information.'
+  );
 
   return lines.join('\n');
 };
@@ -210,15 +234,23 @@ export const analyze = async (
   }
 
   console.log('\n🤖 Analyzing ticket with AI...');
-  const rawAnalysis = await ollama.chat(SYSTEM_PROMPT, buildUserPrompt(ticketContent, context), model);
+  const rawAnalysis = await ollama.chat(
+    SYSTEM_PROMPT,
+    buildUserPrompt(ticketContent, context),
+    model
+  );
   const analysis = parseAnalysis(rawAnalysis, issueKey, issue.fields.summary);
 
-  const criticalCount = analysis.missingInformation.filter(m => m.importance === 'critical').length;
-  const highCount = analysis.missingInformation.filter(m => m.importance === 'high').length;
+  const criticalCount = analysis.missingInformation.filter(
+    (m) => m.importance === 'critical'
+  ).length;
+  const highCount = analysis.missingInformation.filter((m) => m.importance === 'high').length;
 
   console.log(`\n📊 Analysis complete:`);
   console.log(`   - Ticket complete: ${analysis.isComplete ? '✅ Yes' : '❌ No'}`);
-  console.log(`   - Missing info: ${analysis.missingInformation.length} items (${criticalCount} critical, ${highCount} high)`);
+  console.log(
+    `   - Missing info: ${analysis.missingInformation.length} items (${criticalCount} critical, ${highCount} high)`
+  );
   console.log(`   - Questions: ${analysis.questions.length}`);
 
   let commentPosted = false;
@@ -291,36 +323,36 @@ ${analysis.isComplete ? '✅ **Ready for implementation**' : '❌ **Needs more i
     output += '- None identified\n';
   } else {
     const byImportance = {
-      critical: analysis.missingInformation.filter(m => m.importance === 'critical'),
-      high: analysis.missingInformation.filter(m => m.importance === 'high'),
-      medium: analysis.missingInformation.filter(m => m.importance === 'medium'),
-      low: analysis.missingInformation.filter(m => m.importance === 'low'),
+      critical: analysis.missingInformation.filter((m) => m.importance === 'critical'),
+      high: analysis.missingInformation.filter((m) => m.importance === 'high'),
+      medium: analysis.missingInformation.filter((m) => m.importance === 'medium'),
+      low: analysis.missingInformation.filter((m) => m.importance === 'low'),
     };
 
     if (byImportance.critical.length > 0) {
       output += '\n### 🔴 Critical\n';
-      byImportance.critical.forEach(m => {
+      byImportance.critical.forEach((m) => {
         output += `- **[${m.category}]** ${m.description}\n`;
       });
     }
 
     if (byImportance.high.length > 0) {
       output += '\n### 🟠 High\n';
-      byImportance.high.forEach(m => {
+      byImportance.high.forEach((m) => {
         output += `- **[${m.category}]** ${m.description}\n`;
       });
     }
 
     if (byImportance.medium.length > 0) {
       output += '\n### 🟡 Medium\n';
-      byImportance.medium.forEach(m => {
+      byImportance.medium.forEach((m) => {
         output += `- **[${m.category}]** ${m.description}\n`;
       });
     }
 
     if (byImportance.low.length > 0) {
       output += '\n### 🟢 Low\n';
-      byImportance.low.forEach(m => {
+      byImportance.low.forEach((m) => {
         output += `- **[${m.category}]** ${m.description}\n`;
       });
     }
@@ -335,7 +367,7 @@ ${analysis.questions.length > 0 ? analysis.questions.map((q, i) => `${i + 1}. ${
 ---
 
 ## Recommendations
-${analysis.recommendations.length > 0 ? analysis.recommendations.map(r => `- ${r}`).join('\n') : '- None identified'}
+${analysis.recommendations.length > 0 ? analysis.recommendations.map((r) => `- ${r}`).join('\n') : '- None identified'}
 
 ---
 

@@ -128,7 +128,7 @@ const runDesign = async (args: string[]) => {
   for (let i = 1; i < args.length; i++) {
     switch (args[i]) {
       case '--frames':
-        frameIds = args[++i]?.split(',').map(id => id.trim().replace('-', ':'));
+        frameIds = args[++i]?.split(',').map((id) => id.trim().replace('-', ':'));
         break;
       case '--context':
         context = args[++i];
@@ -161,7 +161,13 @@ const runDesign = async (args: string[]) => {
   console.log('✅ Figma connected');
 
   const { fileKey } = figma.extractFigmaInfo(figmaUrl);
-  const report = await designAnalyzer.analyze(figmaUrl, { frameIds, context, maxFrames, model, postComments });
+  const report = await designAnalyzer.analyze(figmaUrl, {
+    frameIds,
+    context,
+    maxFrames,
+    model,
+    postComments,
+  });
   console.log('\n' + '='.repeat(60));
   console.log(designAnalyzer.formatReport(report));
   await saveReport('design-analysis', fileKey, report);

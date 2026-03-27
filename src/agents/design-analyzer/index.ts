@@ -1,6 +1,11 @@
 import * as figma from '../../clients/figma.js';
 import * as ollama from '../../clients/ollama.js';
-import { SYSTEM_PROMPT, buildUserPrompt, IMAGE_SYSTEM_PROMPT, buildImagePrompt } from './prompts.js';
+import {
+  SYSTEM_PROMPT,
+  buildUserPrompt,
+  IMAGE_SYSTEM_PROMPT,
+  buildImagePrompt,
+} from './prompts.js';
 import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode } from '../../types/index.js';
 
 export interface AnalyzeOptions {
@@ -33,7 +38,10 @@ const extractSection = (text: string, sectionName: string): string[] => {
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.match(/^\d+\./)) {
-      const item = trimmed.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '').trim();
+      const item = trimmed
+        .replace(/^[-*]\s*/, '')
+        .replace(/^\d+\.\s*/, '')
+        .trim();
       if (item) {
         items.push(item);
       }
@@ -43,7 +51,11 @@ const extractSection = (text: string, sectionName: string): string[] => {
   return items;
 };
 
-const parseAnalysis = (rawAnalysis: string, frameName: string, frameId: string): DesignAnalysisResult => ({
+const parseAnalysis = (
+  rawAnalysis: string,
+  frameName: string,
+  frameId: string
+): DesignAnalysisResult => ({
   frameName,
   frameId,
   scope: extractSection(rawAnalysis, 'Scope'),
@@ -58,7 +70,14 @@ export const analyze = async (
   fileKeyOrUrl: string,
   options: AnalyzeOptions = {}
 ): Promise<DesignAnalysisReport> => {
-  const { frameIds: specifiedFrameIds, context, maxFrames = 10, imageScale = 2, model, postComments = false } = options;
+  const {
+    frameIds: specifiedFrameIds,
+    context,
+    maxFrames = 10,
+    imageScale = 2,
+    model,
+    postComments = false,
+  } = options;
 
   const { fileKey, nodeId } = figma.extractFigmaInfo(fileKeyOrUrl);
   let frameIds = specifiedFrameIds || (nodeId ? [nodeId] : undefined);
@@ -71,7 +90,7 @@ export const analyze = async (
   let framesToAnalyze: FigmaNode[];
 
   if (frameIds && frameIds.length > 0) {
-    framesToAnalyze = allFrames.filter(f => frameIds!.includes(f.id));
+    framesToAnalyze = allFrames.filter((f) => frameIds!.includes(f.id));
     console.log(`🎯 Analyzing ${framesToAnalyze.length} specified frames`);
   } else {
     framesToAnalyze = allFrames.slice(0, maxFrames);
@@ -98,11 +117,18 @@ export const analyze = async (
       const base64Image = imageBuffer.toString('base64');
 
       console.log('🤖 Analyzing with vision model...');
-      const rawAnalysis = await ollama.chatWithImage(SYSTEM_PROMPT, buildUserPrompt(frame.name, context), base64Image, model);
+      const rawAnalysis = await ollama.chatWithImage(
+        SYSTEM_PROMPT,
+        buildUserPrompt(frame.name, context),
+        base64Image,
+        model
+      );
       const analysis = parseAnalysis(rawAnalysis, frame.name, frame.id);
       analyses.push(analysis);
 
-      console.log(`✅ Found ${analysis.ambiguities.length} ambiguities, ${analysis.missingSpecs.length} missing specs, ${analysis.questions.length} questions`);
+      console.log(
+        `✅ Found ${analysis.ambiguities.length} ambiguities, ${analysis.missingSpecs.length} missing specs, ${analysis.questions.length} questions`
+      );
 
       if (postComments && analysis.questions.length > 0) {
         console.log(`💬 Posting ${analysis.questions.length} comments to Figma...`);
@@ -155,19 +181,19 @@ export const formatReport = (report: DesignAnalysisReport): string => {
 **ID:** ${analysis.frameId}
 
 ### Scope
-${analysis.scope.length > 0 ? analysis.scope.map(s => `- ${s}`).join('\n') : '- Full screen analysis'}
+${analysis.scope.length > 0 ? analysis.scope.map((s) => `- ${s}`).join('\n') : '- Full screen analysis'}
 
 ### Ambiguities
-${analysis.ambiguities.length > 0 ? analysis.ambiguities.map(a => `- ${a}`).join('\n') : '- None identified'}
+${analysis.ambiguities.length > 0 ? analysis.ambiguities.map((a) => `- ${a}`).join('\n') : '- None identified'}
 
 ### Missing Specifications
-${analysis.missingSpecs.length > 0 ? analysis.missingSpecs.map(s => `- ${s}`).join('\n') : '- None identified'}
+${analysis.missingSpecs.length > 0 ? analysis.missingSpecs.map((s) => `- ${s}`).join('\n') : '- None identified'}
 
 ### Questions for Designers
-${analysis.questions.length > 0 ? analysis.questions.map(q => `- ${q}`).join('\n') : '- None identified'}
+${analysis.questions.length > 0 ? analysis.questions.map((q) => `- ${q}`).join('\n') : '- None identified'}
 
 ### Suggestions
-${analysis.suggestions.length > 0 ? analysis.suggestions.map(s => `- ${s}`).join('\n') : '- None identified'}
+${analysis.suggestions.length > 0 ? analysis.suggestions.map((s) => `- ${s}`).join('\n') : '- None identified'}
 
 ---
 `;
@@ -199,7 +225,7 @@ export const analyzeImage = async (
   model?: string
 ): Promise<ImageAnalysisResult> => {
   const base64Image = imageBuffer.toString('base64');
-  
+
   console.log(`🖼️  Analyzing image: ${imageName}`);
   const rawAnalysis = await ollama.chatWithImage(
     IMAGE_SYSTEM_PROMPT,
@@ -207,28 +233,28 @@ export const analyzeImage = async (
     base64Image,
     model
   );
-  
+
   return parseImageAnalysis(rawAnalysis, imageName);
 };
 
 export const formatImageAnalysis = (analysis: ImageAnalysisResult): string => {
   let output = `### Image: ${analysis.imageName}\n\n`;
-  
+
   if (analysis.description) {
     output += `**Description:** ${analysis.description}\n\n`;
   }
-  
+
   if (analysis.uiElements.length > 0) {
-    output += `**UI Elements:**\n${analysis.uiElements.map(e => `- ${e}`).join('\n')}\n\n`;
+    output += `**UI Elements:**\n${analysis.uiElements.map((e) => `- ${e}`).join('\n')}\n\n`;
   }
-  
+
   if (analysis.specifications.length > 0) {
-    output += `**Specifications:**\n${analysis.specifications.map(s => `- ${s}`).join('\n')}\n\n`;
+    output += `**Specifications:**\n${analysis.specifications.map((s) => `- ${s}`).join('\n')}\n\n`;
   }
-  
+
   if (analysis.interactions.length > 0) {
-    output += `**Interactions:**\n${analysis.interactions.map(i => `- ${i}`).join('\n')}\n\n`;
+    output += `**Interactions:**\n${analysis.interactions.map((i) => `- ${i}`).join('\n')}\n\n`;
   }
-  
+
   return output;
 };

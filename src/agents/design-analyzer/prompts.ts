@@ -25,7 +25,10 @@ Focus on practical implementation concerns like:
 
 Be specific and actionable in your analysis.`;
 
-export const buildUserPrompt = (frameName: string, context?: string): string => `Analyze this UI design frame named "${frameName}".
+export const buildUserPrompt = (
+  frameName: string,
+  context?: string
+): string => `Analyze this UI design frame named "${frameName}".
 ${context ? `\nAdditional context: ${context}` : ''}
 
 STEP 1: First, analyze the frame title "${frameName}" to determine the specific scope/feature being demonstrated.
@@ -65,7 +68,10 @@ Focus on extracting:
 
 Be thorough and specific. The developer will rely on your description to build this UI.`;
 
-export const buildImagePrompt = (imageName: string, ticketContext?: string): string => `Analyze this UI screenshot/mockup named "${imageName}".
+export const buildImagePrompt = (
+  imageName: string,
+  ticketContext?: string
+): string => `Analyze this UI screenshot/mockup named "${imageName}".
 
 ${ticketContext ? `Ticket context: ${ticketContext}` : ''}
 

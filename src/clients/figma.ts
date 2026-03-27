@@ -35,7 +35,11 @@ const request = async <T>(
 export const getFile = async (fileKey: string, accessToken?: string): Promise<FigmaFile> =>
   request<FigmaFile>(`/files/${fileKey}`, getAccessToken(accessToken));
 
-export const getFileNodes = async (fileKey: string, nodeIds: string[], accessToken?: string): Promise<unknown> => {
+export const getFileNodes = async (
+  fileKey: string,
+  nodeIds: string[],
+  accessToken?: string
+): Promise<unknown> => {
   const ids = nodeIds.join(',');
   return request(`/files/${fileKey}/nodes?ids=${ids}`, getAccessToken(accessToken));
 };
@@ -81,7 +85,10 @@ export const postComment = async (
   nodeId?: string,
   accessToken?: string
 ): Promise<FigmaComment> => {
-  const body: { message: string; client_meta?: { node_id: string; node_offset: { x: number; y: number } } } = { message };
+  const body: {
+    message: string;
+    client_meta?: { node_id: string; node_offset: { x: number; y: number } };
+  } = { message };
 
   if (nodeId) {
     body.client_meta = {
@@ -90,11 +97,10 @@ export const postComment = async (
     };
   }
 
-  return request<FigmaComment>(
-    `/files/${fileKey}/comments`,
-    getAccessToken(accessToken),
-    { method: 'POST', body }
-  );
+  return request<FigmaComment>(`/files/${fileKey}/comments`, getAccessToken(accessToken), {
+    method: 'POST',
+    body,
+  });
 };
 
 export const checkConnection = async (accessToken?: string): Promise<boolean> => {

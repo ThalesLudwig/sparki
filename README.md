@@ -119,6 +119,7 @@ Analyzes Jira tickets to identify missing information needed for implementation:
 - Design references (Figma links)
 
 **Flow:**
+
 1. Fetches ticket + comments from Jira
 2. Analyzes with AI to find gaps
 3. Posts clarifying questions as a comment (if critical issues found)

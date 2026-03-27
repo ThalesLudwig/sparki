@@ -1,7 +1,6 @@
 import ollama from 'ollama';
 
-const getModel = (model?: string): string =>
-  model || process.env.OLLAMA_MODEL || 'llama3.2';
+const getModel = (model?: string): string => model || process.env.OLLAMA_MODEL || 'llama3.2';
 
 const getVisionModel = (model?: string): string =>
   model || process.env.OLLAMA_VISION_MODEL || 'llava';
@@ -47,7 +46,10 @@ export const checkConnection = async (model?: string): Promise<boolean> => {
     const modelName = getModel(model);
     const hasModel = models.models.some((m: { name: string }) => m.name.includes(modelName));
     if (!hasModel) {
-      console.warn(`Warning: Model "${modelName}" not found. Available:`, models.models.map((m: { name: string }) => m.name));
+      console.warn(
+        `Warning: Model "${modelName}" not found. Available:`,
+        models.models.map((m: { name: string }) => m.name)
+      );
     }
     return true;
   } catch (error) {

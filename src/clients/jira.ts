@@ -1,9 +1,4 @@
-import type {
-  JiraIssue,
-  JiraComment,
-  JiraDescription,
-  JiraContentNode,
-} from '../types/index.js';
+import type { JiraIssue, JiraComment, JiraDescription, JiraContentNode } from '../types/index.js';
 
 const getConfig = () => {
   const baseUrl = process.env.JIRA_BASE_URL;
@@ -74,7 +69,7 @@ export const postComment = async (issueKey: string, commentBody: string): Promis
   const adfBody = {
     version: 1,
     type: 'doc',
-    content: commentBody.split('\n\n').map(paragraph => ({
+    content: commentBody.split('\n\n').map((paragraph) => ({
       type: 'paragraph',
       content: paragraph.split('\n').flatMap((line, index, arr) => {
         const nodes: JiraContentNode[] = [{ type: 'text', text: line }];
@@ -111,9 +106,9 @@ export const extractTextFromDescription = (description: JiraDescription | null):
 
   const extractText = (nodes: JiraContentNode[]): string => {
     return nodes
-      .map(node => {
+      .map((node) => {
         if (node.text) {
-          const linkMark = node.marks?.find(m => m.type === 'link');
+          const linkMark = node.marks?.find((m) => m.type === 'link');
           if (linkMark && linkMark.attrs?.href) {
             return `${node.text} (${linkMark.attrs.href})`;
           }
@@ -139,8 +134,8 @@ export const extractTextFromDescription = (description: JiraDescription | null):
 export const formatIssueForAnalysis = (issue: JiraIssue, comments: JiraComment[] = []): string => {
   const description = extractTextFromDescription(issue.fields.description);
   const labels = issue.fields.labels.join(', ') || 'None';
-  const components = issue.fields.components.map(c => c.name).join(', ') || 'None';
-  const attachments = issue.fields.attachment?.map(a => a.filename).join(', ') || 'None';
+  const components = issue.fields.components.map((c) => c.name).join(', ') || 'None';
+  const attachments = issue.fields.attachment?.map((a) => a.filename).join(', ') || 'None';
 
   let content = `
 # Jira Ticket: ${issue.key}
@@ -253,17 +248,26 @@ export const transitionIssue = async (issueKey: string, transitionId: string): P
 export const transitionToInProgress = async (issueKey: string): Promise<boolean> => {
   try {
     const transitions = await getTransitions(issueKey);
-    
+
     // Look for common "in progress" transition names
-    const inProgressNames = ['in progress', 'start progress', 'doing', 'em andamento', 'sendo feito', 'start'];
-    const transition = transitions.find(t => 
-      inProgressNames.some(name => 
-        t.name.toLowerCase().includes(name) || t.to.name.toLowerCase().includes(name)
+    const inProgressNames = [
+      'in progress',
+      'start progress',
+      'doing',
+      'em andamento',
+      'sendo feito',
+      'start',
+    ];
+    const transition = transitions.find((t) =>
+      inProgressNames.some(
+        (name) => t.name.toLowerCase().includes(name) || t.to.name.toLowerCase().includes(name)
       )
     );
 
     if (!transition) {
-      console.log(`⚠️  No "In Progress" transition found. Available: ${transitions.map(t => t.name).join(', ')}`);
+      console.log(
+        `⚠️  No "In Progress" transition found. Available: ${transitions.map((t) => t.name).join(', ')}`
+      );
       return false;
     }
 
@@ -312,8 +316,8 @@ const IMAGE_MIME_TYPES = [
 export const extractImageAttachments = (issue: JiraIssue): JiraAttachment[] => {
   const attachments = issue.fields.attachment || [];
   return attachments
-    .filter(a => IMAGE_MIME_TYPES.includes(a.mimeType))
-    .map(a => ({
+    .filter((a) => IMAGE_MIME_TYPES.includes(a.mimeType))
+    .map((a) => ({
       id: a.id,
       filename: a.filename,
       mimeType: a.mimeType,

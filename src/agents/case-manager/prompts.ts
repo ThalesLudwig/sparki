@@ -41,7 +41,10 @@ Rate each missing item by importance:
 
 Be specific and actionable. Frame questions in a way that can be answered concisely.`;
 
-export const buildUserPrompt = (ticketContent: string, context?: string): string => `Analyze this Jira engineering ticket and identify what information is STILL missing for an AI engineering agent to implement it.
+export const buildUserPrompt = (
+  ticketContent: string,
+  context?: string
+): string => `Analyze this Jira engineering ticket and identify what information is STILL missing for an AI engineering agent to implement it.
 
 ${ticketContent}
 
@@ -82,7 +85,9 @@ The output should be:
 - Include all relevant technical details
 - Ready to be passed directly to a coding agent`;
 
-export const buildSummarizePrompt = (ticketContent: string): string => `Based on the following Jira ticket information, create a clear implementation prompt for an AI coding agent.
+export const buildSummarizePrompt = (
+  ticketContent: string
+): string => `Based on the following Jira ticket information, create a clear implementation prompt for an AI coding agent.
 
 ${ticketContent}
 
