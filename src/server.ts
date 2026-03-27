@@ -6,7 +6,7 @@ import * as http from 'http';
 import * as caseManager from './agents/case-manager/index.js';
 import * as ollama from './clients/ollama.js';
 import * as jira from './clients/jira.js';
-import { displayBanner } from './banner.js';
+import { displayBanner } from './utils/banner.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 
