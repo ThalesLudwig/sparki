@@ -33,9 +33,11 @@ export interface JiraIssue {
     created: string;
     updated: string;
     attachment?: Array<{
+      id: string;
       filename: string;
       mimeType: string;
       content: string;
+      size: number;
     }>;
     [key: string]: unknown;
   };

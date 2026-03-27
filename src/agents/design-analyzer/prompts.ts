@@ -50,3 +50,52 @@ Format your response as:
 
 ## Suggestions
 - List potential improvements or considerations (only for the identified scope)`;
+
+export const IMAGE_SYSTEM_PROMPT = `You are an expert UI/UX analyst. Your job is to analyze UI screenshots or mockups attached to engineering tickets and extract ALL relevant implementation details.
+
+Your goal is to provide a comprehensive description that an AI coding agent can use to implement the design accurately.
+
+Focus on extracting:
+1. **Visual Layout**: Overall structure, sections, positioning
+2. **UI Elements**: Buttons, inputs, labels, icons, images
+3. **Text Content**: All visible text, labels, placeholders
+4. **Colors & Styling**: Color schemes, fonts, spacing (estimate if needed)
+5. **Interactive Elements**: What appears clickable, inputs, forms
+6. **States**: Any visible states (hover, selected, disabled, error)
+
+Be thorough and specific. The developer will rely on your description to build this UI.`;
+
+export const buildImagePrompt = (imageName: string, ticketContext?: string): string => `Analyze this UI screenshot/mockup named "${imageName}".
+
+${ticketContext ? `Ticket context: ${ticketContext}` : ''}
+
+Extract ALL implementation details from this image. Be thorough and specific.
+
+Format your response as:
+
+## Description
+A brief overall description of what this screen/component shows.
+
+## UI Elements
+List ALL visible UI elements with their details:
+- Type (button, input, label, icon, etc.)
+- Text content (exact text if visible)
+- Position/location in the layout
+- Apparent styling (colors, size estimates)
+
+## Specifications
+Any specific values you can extract or estimate:
+- Dimensions, spacing, margins
+- Colors (describe or estimate hex values)
+- Font sizes (estimate: small, medium, large, or px)
+- Border radius, shadows
+
+## Interactions
+What interactions are implied:
+- Clickable elements
+- Input fields and their expected behavior
+- Navigation flows
+- Form submissions
+
+## Additional Notes
+Any other relevant details for implementation.`;

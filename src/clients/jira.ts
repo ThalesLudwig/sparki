@@ -291,3 +291,49 @@ export const extractFigmaLinks = (issue: JiraIssue, comments: JiraComment[] = []
 
   return [...new Set(links)];
 };
+
+export interface JiraAttachment {
+  id: string;
+  filename: string;
+  mimeType: string;
+  url: string;
+  size: number;
+}
+
+const IMAGE_MIME_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/gif',
+  'image/webp',
+  'image/svg+xml',
+];
+
+export const extractImageAttachments = (issue: JiraIssue): JiraAttachment[] => {
+  const attachments = issue.fields.attachment || [];
+  return attachments
+    .filter(a => IMAGE_MIME_TYPES.includes(a.mimeType))
+    .map(a => ({
+      id: a.id,
+      filename: a.filename,
+      mimeType: a.mimeType,
+      url: a.content,
+      size: a.size,
+    }));
+};
+
+export const downloadAttachment = async (url: string): Promise<Buffer> => {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: getAuthHeader(),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to download attachment: ${response.status}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+};

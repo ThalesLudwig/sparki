@@ -1,6 +1,6 @@
 import * as figma from '../../clients/figma.js';
 import * as ollama from '../../clients/ollama.js';
-import { SYSTEM_PROMPT, buildUserPrompt } from './prompts.js';
+import { SYSTEM_PROMPT, buildUserPrompt, IMAGE_SYSTEM_PROMPT, buildImagePrompt } from './prompts.js';
 import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode } from '../../types/index.js';
 
 export interface AnalyzeOptions {
@@ -10,6 +10,15 @@ export interface AnalyzeOptions {
   imageScale?: number;
   model?: string;
   postComments?: boolean;
+}
+
+export interface ImageAnalysisResult {
+  imageName: string;
+  description: string;
+  uiElements: string[];
+  specifications: string[];
+  interactions: string[];
+  rawAnalysis: string;
 }
 
 const extractSection = (text: string, sectionName: string): string[] => {
@@ -164,5 +173,62 @@ ${analysis.suggestions.length > 0 ? analysis.suggestions.map(s => `- ${s}`).join
 `;
   }
 
+  return output;
+};
+
+const extractTextSection = (text: string, sectionName: string): string => {
+  const regex = new RegExp(`##\\s*${sectionName}[\\s\\S]*?(?=##|$)`, 'i');
+  const match = text.match(regex);
+  if (!match) return '';
+  return match[0].replace(new RegExp(`##\\s*${sectionName}`, 'i'), '').trim();
+};
+
+const parseImageAnalysis = (rawAnalysis: string, imageName: string): ImageAnalysisResult => ({
+  imageName,
+  description: extractTextSection(rawAnalysis, 'Description'),
+  uiElements: extractSection(rawAnalysis, 'UI Elements'),
+  specifications: extractSection(rawAnalysis, 'Specifications'),
+  interactions: extractSection(rawAnalysis, 'Interactions'),
+  rawAnalysis,
+});
+
+export const analyzeImage = async (
+  imageBuffer: Buffer,
+  imageName: string,
+  ticketContext?: string,
+  model?: string
+): Promise<ImageAnalysisResult> => {
+  const base64Image = imageBuffer.toString('base64');
+  
+  console.log(`🖼️  Analyzing image: ${imageName}`);
+  const rawAnalysis = await ollama.chatWithImage(
+    IMAGE_SYSTEM_PROMPT,
+    buildImagePrompt(imageName, ticketContext),
+    base64Image,
+    model
+  );
+  
+  return parseImageAnalysis(rawAnalysis, imageName);
+};
+
+export const formatImageAnalysis = (analysis: ImageAnalysisResult): string => {
+  let output = `### Image: ${analysis.imageName}\n\n`;
+  
+  if (analysis.description) {
+    output += `**Description:** ${analysis.description}\n\n`;
+  }
+  
+  if (analysis.uiElements.length > 0) {
+    output += `**UI Elements:**\n${analysis.uiElements.map(e => `- ${e}`).join('\n')}\n\n`;
+  }
+  
+  if (analysis.specifications.length > 0) {
+    output += `**Specifications:**\n${analysis.specifications.map(s => `- ${s}`).join('\n')}\n\n`;
+  }
+  
+  if (analysis.interactions.length > 0) {
+    output += `**Interactions:**\n${analysis.interactions.map(i => `- ${i}`).join('\n')}\n\n`;
+  }
+  
   return output;
 };
