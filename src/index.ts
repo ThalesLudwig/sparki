@@ -17,7 +17,7 @@ const main = async () => {
   const command = args[0];
   const commandArgs = args.slice(1);
 
-  console.log('⚡ SPARKi - AI Ticket Automation');
+  console.log('⚡ SPARKi CLI - AI Ticket Automation');
   console.log('================================\n');
 
   try {
