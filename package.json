@@ -3,17 +3,14 @@
   "version": "1.0.0",
   "description": "SPARKi - AI-powered Jira ticket automation: analyzes tickets, designs, and orchestrates implementation",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "bin": {
-    "sparki": "./dist/index.js"
+    "sparki": "./dist/server.js"
   },
   "scripts": {
-    "start": "tsx src/index.ts",
-    "server": "tsx src/server.ts",
+    "start": "tsx src/server.ts",
     "build": "tsc",
-    "dev": "tsx watch src/index.ts",
-    "analyze": "tsx src/index.ts analyze",
-    "design": "tsx src/index.ts design",
+    "dev": "tsx watch src/server.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
