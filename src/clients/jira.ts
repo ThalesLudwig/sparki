@@ -270,6 +270,41 @@ export const transitionToInProgress = async (issueKey: string): Promise<boolean>
   }
 };
 
+export const transitionToTodo = async (issueKey: string): Promise<boolean> => {
+  try {
+    const transitions = await getTransitions(issueKey);
+
+    // Look for common "todo" transition names
+    const todoNames = [
+      'to do',
+      'todo',
+      'backlog',
+      'open',
+      'a fazer',
+      'pendente',
+      'reopen',
+    ];
+    const transition = transitions.find((t) =>
+      todoNames.some(
+        (name) => t.name.toLowerCase().includes(name) || t.to.name.toLowerCase().includes(name)
+      )
+    );
+
+    if (!transition) {
+      console.log(
+        `⚠️  No "To Do" transition found. Available: ${transitions.map((t) => t.name).join(', ')}`
+      );
+      return false;
+    }
+
+    await transitionIssue(issueKey, transition.id);
+    return true;
+  } catch (error) {
+    console.error(`Failed to transition issue to To Do:`, error);
+    return false;
+  }
+};
+
 export const extractFigmaLinks = (issue: JiraIssue, comments: JiraComment[] = []): string[] => {
   const links: string[] = [];
   const figmaRegex = /https:\/\/(?:www\.)?figma\.com\/(?:file|design)\/[a-zA-Z0-9]+[^\s)"]*/g;

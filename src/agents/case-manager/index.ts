@@ -65,6 +65,13 @@ export const analyze = async (
       commentPosted = true;
       commentId = comment.id;
       console.log(`✅ Comment posted successfully (ID: ${comment.id})`);
+
+      // Move ticket back to TODO since clarifications are needed
+      console.log(`\n🔙 Moving ticket back to TODO (awaiting clarifications)...`);
+      const movedToTodo = await jira.transitionToTodo(issueKey);
+      if (movedToTodo) {
+        console.log('✅ Ticket moved back to TODO');
+      }
     } catch (error) {
       console.error('❌ Failed to post comment:', error);
     }
