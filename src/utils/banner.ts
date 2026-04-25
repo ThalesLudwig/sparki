@@ -50,5 +50,5 @@ export const displayBanner = () => {
   console.log(poro);
   console.log(sparki);
   console.log("Systematic Poro Analysis & Requirements Knowledge Integrator");
-  console.log("\n");
+  console.log('========================\n');
 };
