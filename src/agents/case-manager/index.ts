@@ -176,6 +176,8 @@ const formatQuestionsAsComment = (analysis: TicketAnalysisResult): string => {
 
   const critical = analysis.missingInformation.filter((m) => m.importance === 'critical');
   const high = analysis.missingInformation.filter((m) => m.importance === 'high');
+  const medium = analysis.missingInformation.filter((m) => m.importance === 'medium');
+  const low = analysis.missingInformation.filter((m) => m.importance === 'low');
 
   if (critical.length > 0) {
     lines.push('🔴 CRITICAL (blocking implementation):');
@@ -189,9 +191,15 @@ const formatQuestionsAsComment = (analysis: TicketAnalysisResult): string => {
     lines.push('');
   }
 
-  if (analysis.questions.length > 0) {
-    lines.push('❓ Questions:');
-    analysis.questions.forEach((q, i) => lines.push(`${i + 1}. ${q}`));
+  if (medium.length > 0) {
+    lines.push('🟡 MEDIUM:');
+    medium.forEach((m) => lines.push(`• [${m.category}] ${m.description}`));
+    lines.push('');
+  }
+
+  if (low.length > 0) {
+    lines.push('🟢 LOW:');
+    low.forEach((m) => lines.push(`• [${m.category}] ${m.description}`));
     lines.push('');
   }
 
@@ -256,9 +264,10 @@ export const analyze = async (
   let commentPosted = false;
   let commentId: string | undefined;
 
-  const hasCriticalIssues = criticalCount > 0;
+  const hasQuestions =
+    analysis.missingInformation.length > 0 || analysis.questions.length > 0;
 
-  if (postComment && hasCriticalIssues) {
+  if (postComment && hasQuestions) {
     console.log('\n📝 Posting questions as Jira comment...');
     const commentBody = formatQuestionsAsComment(analysis);
     try {
@@ -269,8 +278,8 @@ export const analyze = async (
     } catch (error) {
       console.error('❌ Failed to post comment:', error);
     }
-  } else if (postComment && !hasCriticalIssues) {
-    console.log('\n✅ No critical issues remaining - skipping comment');
+  } else if (postComment && !hasQuestions) {
+    console.log('\n✅ No questions to post - skipping comment');
   }
 
   // Generate implementation prompt for engineering agent
