@@ -1,8 +1,10 @@
 export const buildSummarizePrompt = (
-  ticketContent: string
+  ticketContent: string,
+  repositoryLink?: string
 ): string => `Based on the following Jira ticket information, create a clear implementation prompt for an AI coding agent.
 
 ${ticketContent}
+${repositoryLink ? `\nRepository: ${repositoryLink}` : ''}
 
 IMPORTANT: The AI coding agent will NOT have access to any images, screenshots, or Figma files. You MUST convert ALL visual information into explicit, text-based specifications. Never reference image filenames or say "match the screenshot".
 

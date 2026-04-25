@@ -9,6 +9,7 @@ import {
 import { parseAnalysis } from './parsers.js';
 import { formatQuestionsAsComment } from './formatters.js';
 import { analyzeDesignAssets } from './design.js';
+import { findRepositoryFromTitle } from '../../config/repositories.js';
 import type { CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 export type { CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 
@@ -37,6 +38,13 @@ export const analyze = async (
   );
 
   let ticketContent = jira.formatIssueForAnalysis(issue, comments);
+
+  // Check for repository from title mapping
+  const repositoryLink = findRepositoryFromTitle(issue.fields.summary);
+  if (repositoryLink) {
+    console.log(`🔗 Repository detected from title: ${repositoryLink}`);
+    ticketContent += `\n\n## Repository\n${repositoryLink}`;
+  }
 
   // Analyze design assets (Figma links + image attachments)
   const designDetails = await analyzeDesignAssets(issue, comments, issue.fields.summary, model);
@@ -86,7 +94,7 @@ export const analyze = async (
     console.log('\n📝 Generating implementation prompt...');
     implementationPrompt = await ollama.chat(
       SUMMARIZE_SYSTEM_PROMPT,
-      buildSummarizePrompt(ticketContent),
+      buildSummarizePrompt(ticketContent, repositoryLink),
       model
     );
 
