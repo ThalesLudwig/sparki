@@ -7,7 +7,7 @@ import {
   buildUserPrompt,
   SUMMARIZE_SYSTEM_PROMPT,
   buildSummarizePrompt,
-} from './prompts.js';
+} from './prompts/index.js';
 import type {
   TicketAnalysisResult,
   TicketAnalysisReport,

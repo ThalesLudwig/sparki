@@ -5,7 +5,7 @@ import {
   buildUserPrompt,
   IMAGE_SYSTEM_PROMPT,
   buildImagePrompt,
-} from './prompts.js';
+} from './prompts/index.js';
 import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode } from '../../types/index.js';
 
 export interface AnalyzeOptions {
