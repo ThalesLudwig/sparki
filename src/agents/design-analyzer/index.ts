@@ -6,7 +6,11 @@ import {
   IMAGE_SYSTEM_PROMPT,
   buildImagePrompt,
 } from './prompts/index.js';
+import { parseAnalysis, parseImageAnalysis } from './parsers.js';
 import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode } from '../../types/index.js';
+
+export type { ImageAnalysisResult } from './parsers.js';
+export { formatReport, formatImageAnalysis } from './formatters.js';
 
 export interface AnalyzeOptions {
   frameIds?: string[];
@@ -16,55 +20,6 @@ export interface AnalyzeOptions {
   model?: string;
   postComments?: boolean;
 }
-
-export interface ImageAnalysisResult {
-  imageName: string;
-  description: string;
-  uiElements: string[];
-  specifications: string[];
-  interactions: string[];
-  rawAnalysis: string;
-}
-
-const extractSection = (text: string, sectionName: string): string[] => {
-  const regex = new RegExp(`##\\s*${sectionName}[\\s\\S]*?(?=##|$)`, 'i');
-  const match = text.match(regex);
-  if (!match) return [];
-
-  const sectionText = match[0];
-  const lines = sectionText.split('\n').slice(1);
-  const items: string[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('-') || trimmed.startsWith('*') || trimmed.match(/^\d+\./)) {
-      const item = trimmed
-        .replace(/^[-*]\s*/, '')
-        .replace(/^\d+\.\s*/, '')
-        .trim();
-      if (item) {
-        items.push(item);
-      }
-    }
-  }
-
-  return items;
-};
-
-const parseAnalysis = (
-  rawAnalysis: string,
-  frameName: string,
-  frameId: string
-): DesignAnalysisResult => ({
-  frameName,
-  frameId,
-  scope: extractSection(rawAnalysis, 'Scope'),
-  ambiguities: extractSection(rawAnalysis, 'Ambiguities'),
-  missingSpecs: extractSection(rawAnalysis, 'Missing Specifications'),
-  questions: extractSection(rawAnalysis, 'Questions for Designers'),
-  suggestions: extractSection(rawAnalysis, 'Suggestions'),
-  rawAnalysis,
-});
 
 export const analyze = async (
   fileKeyOrUrl: string,
@@ -158,72 +113,12 @@ export const analyze = async (
   };
 };
 
-export const formatReport = (report: DesignAnalysisReport): string => {
-  let output = `
-# Figma Design Analysis Report
-
-**File:** ${report.fileName}
-**Analyzed:** ${report.analyzedAt}
-**Frames Analyzed:** ${report.totalFramesAnalyzed} of ${report.totalFramesFound}
-
-## Summary
-- **Ambiguities Found:** ${report.summary.totalAmbiguities}
-- **Missing Specifications:** ${report.summary.totalMissingSpecs}
-- **Questions for Designers:** ${report.summary.totalQuestions}
-- **Suggestions:** ${report.summary.totalSuggestions}
-
----
-`;
-
-  for (const analysis of report.analyses) {
-    output += `
-## Frame: ${analysis.frameName}
-**ID:** ${analysis.frameId}
-
-### Scope
-${analysis.scope.length > 0 ? analysis.scope.map((s) => `- ${s}`).join('\n') : '- Full screen analysis'}
-
-### Ambiguities
-${analysis.ambiguities.length > 0 ? analysis.ambiguities.map((a) => `- ${a}`).join('\n') : '- None identified'}
-
-### Missing Specifications
-${analysis.missingSpecs.length > 0 ? analysis.missingSpecs.map((s) => `- ${s}`).join('\n') : '- None identified'}
-
-### Questions for Designers
-${analysis.questions.length > 0 ? analysis.questions.map((q) => `- ${q}`).join('\n') : '- None identified'}
-
-### Suggestions
-${analysis.suggestions.length > 0 ? analysis.suggestions.map((s) => `- ${s}`).join('\n') : '- None identified'}
-
----
-`;
-  }
-
-  return output;
-};
-
-const extractTextSection = (text: string, sectionName: string): string => {
-  const regex = new RegExp(`##\\s*${sectionName}[\\s\\S]*?(?=##|$)`, 'i');
-  const match = text.match(regex);
-  if (!match) return '';
-  return match[0].replace(new RegExp(`##\\s*${sectionName}`, 'i'), '').trim();
-};
-
-const parseImageAnalysis = (rawAnalysis: string, imageName: string): ImageAnalysisResult => ({
-  imageName,
-  description: extractTextSection(rawAnalysis, 'Description'),
-  uiElements: extractSection(rawAnalysis, 'UI Elements'),
-  specifications: extractSection(rawAnalysis, 'Specifications'),
-  interactions: extractSection(rawAnalysis, 'Interactions'),
-  rawAnalysis,
-});
-
 export const analyzeImage = async (
   imageBuffer: Buffer,
   imageName: string,
   ticketContext?: string,
   model?: string
-): Promise<ImageAnalysisResult> => {
+): Promise<ReturnType<typeof parseImageAnalysis>> => {
   const base64Image = imageBuffer.toString('base64');
 
   console.log(`🖼️  Analyzing image: ${imageName}`);
@@ -235,26 +130,4 @@ export const analyzeImage = async (
   );
 
   return parseImageAnalysis(rawAnalysis, imageName);
-};
-
-export const formatImageAnalysis = (analysis: ImageAnalysisResult): string => {
-  let output = `### Image: ${analysis.imageName}\n\n`;
-
-  if (analysis.description) {
-    output += `**Description:** ${analysis.description}\n\n`;
-  }
-
-  if (analysis.uiElements.length > 0) {
-    output += `**UI Elements:**\n${analysis.uiElements.map((e) => `- ${e}`).join('\n')}\n\n`;
-  }
-
-  if (analysis.specifications.length > 0) {
-    output += `**Specifications:**\n${analysis.specifications.map((s) => `- ${s}`).join('\n')}\n\n`;
-  }
-
-  if (analysis.interactions.length > 0) {
-    output += `**Interactions:**\n${analysis.interactions.map((i) => `- ${i}`).join('\n')}\n\n`;
-  }
-
-  return output;
 };
