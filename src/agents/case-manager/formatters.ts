@@ -2,7 +2,7 @@ import type { TicketAnalysisResult, TicketAnalysisReport } from '../../types/ind
 
 export const formatQuestionsAsComment = (analysis: TicketAnalysisResult): string => {
   const lines: string[] = [
-    '🤖 AI Ticket Analysis - Questions for Clarification',
+    '🤖 [SPARKI Logger] - Questions for Clarification',
     '',
     'The following questions need to be answered before this ticket can be implemented:',
     '',

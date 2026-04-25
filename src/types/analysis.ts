@@ -39,7 +39,6 @@ export interface ImageAnalysisResult {
 }
 
 export interface CaseManagerAnalyzeOptions {
-  context?: string;
   model?: string;
   postComment?: boolean;
 }

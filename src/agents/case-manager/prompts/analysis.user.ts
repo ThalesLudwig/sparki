@@ -1,11 +1,7 @@
-export const buildUserPrompt = (
-  ticketContent: string,
-  context?: string
-): string => `Analyze this Jira engineering ticket and identify what information is STILL missing for an AI engineering agent to implement it.
+export const buildUserPrompt = (ticketContent: string): string => `
+Analyze this Jira engineering ticket and identify what information is STILL missing for an AI engineering agent to implement it.
 
 ${ticketContent}
-
-${context ? `\nAdditional context: ${context}` : ''}
 
 CRITICAL INSTRUCTIONS:
 1. Read the ENTIRE ticket including ALL comments carefully

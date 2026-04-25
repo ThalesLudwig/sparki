@@ -18,7 +18,7 @@ export const analyze = async (
   issueKey: string,
   options: AnalyzeOptions = {}
 ): Promise<TicketAnalysisReport> => {
-  const { context, model, postComment = false } = options;
+  const { model, postComment = false } = options;
 
   // Move ticket to In Progress
   console.log(`\n🚀 Moving ticket to In Progress...`);
@@ -34,7 +34,6 @@ export const analyze = async (
 
   console.log('💬 Fetching comments...');
   const comments = await jira.getIssueComments(issueKey);
-  console.log(`   Found ${comments.length} comment(s)`);
 
   let ticketContent = jira.formatIssueForAnalysis(issue, comments);
 
@@ -47,22 +46,12 @@ export const analyze = async (
   console.log('\n🤖 Analyzing ticket with AI...');
   const rawAnalysis = await ollama.chat(
     SYSTEM_PROMPT,
-    buildUserPrompt(ticketContent, context),
+    buildUserPrompt(ticketContent),
     model
   );
   const analysis = parseAnalysis(rawAnalysis, issueKey, issue.fields.summary);
 
-  const criticalCount = analysis.missingInformation.filter(
-    (m) => m.importance === 'critical'
-  ).length;
-  const highCount = analysis.missingInformation.filter((m) => m.importance === 'high').length;
-
-  console.log(`\n📊 Analysis complete:`);
-  console.log(`   - Ticket complete: ${analysis.isComplete ? '✅ Yes' : '❌ No'}`);
-  console.log(
-    `   - Missing info: ${analysis.missingInformation.length} items (${criticalCount} critical, ${highCount} high)`
-  );
-  console.log(`   - Questions: ${analysis.questions.length}`);
+  console.log(`\n📊 Analysis complete: ${analysis.isComplete ? '✅ Yes' : '❌ No'}`);
 
   let commentPosted = false;
   let commentId: string | undefined;
