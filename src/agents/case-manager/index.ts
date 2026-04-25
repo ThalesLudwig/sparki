@@ -79,19 +79,25 @@ export const analyze = async (
     console.log('\n✅ No questions to post - skipping comment');
   }
 
-  // Generate implementation prompt for engineering agent
-  console.log('\n📝 Generating implementation prompt...');
-  const implementationPrompt = await ollama.chat(
-    SUMMARIZE_SYSTEM_PROMPT,
-    buildSummarizePrompt(ticketContent),
-    model
-  );
+  let implementationPrompt: string | undefined;
 
-  console.log('\n' + '='.repeat(60));
-  console.log('🤖 IMPLEMENTATION PROMPT FOR ENGINEERING AGENT:');
-  console.log('='.repeat(60));
-  console.log(implementationPrompt);
-  console.log('='.repeat(60));
+  // Only generate implementation prompt if analysis is complete with no questions
+  if (!hasQuestions) {
+    console.log('\n📝 Generating implementation prompt...');
+    implementationPrompt = await ollama.chat(
+      SUMMARIZE_SYSTEM_PROMPT,
+      buildSummarizePrompt(ticketContent),
+      model
+    );
+
+    console.log('\n' + '='.repeat(60));
+    console.log('🤖 IMPLEMENTATION PROMPT FOR ENGINEERING AGENT:');
+    console.log('='.repeat(60));
+    console.log(implementationPrompt);
+    console.log('='.repeat(60));
+  } else {
+    console.log('\n⏸️  Skipping implementation prompt - awaiting clarifications');
+  }
 
   return { analysis, commentPosted, commentId };
 };
