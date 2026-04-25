@@ -67,3 +67,20 @@ export interface JiraComment {
   created: string;
   updated: string;
 }
+
+export interface JiraTransition {
+  id: string;
+  name: string;
+  to: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface JiraAttachment {
+  id: string;
+  filename: string;
+  mimeType: string;
+  url: string;
+  size: number;
+}

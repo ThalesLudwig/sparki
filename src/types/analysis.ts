@@ -28,3 +28,27 @@ export interface DesignAnalysisResult {
   suggestions: string[];
   rawAnalysis: string;
 }
+
+export interface ImageAnalysisResult {
+  imageName: string;
+  description: string;
+  uiElements: string[];
+  specifications: string[];
+  interactions: string[];
+  rawAnalysis: string;
+}
+
+export interface CaseManagerAnalyzeOptions {
+  context?: string;
+  model?: string;
+  postComment?: boolean;
+}
+
+export interface DesignAnalyzerOptions {
+  frameIds?: string[];
+  context?: string;
+  maxFrames?: number;
+  imageScale?: number;
+  model?: string;
+  postComments?: boolean;
+}

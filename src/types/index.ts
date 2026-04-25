@@ -3,3 +3,4 @@ export * from './jira.js';
 export * from './figma.js';
 export * from './analysis.js';
 export * from './report.js';
+export * from './routes.js';

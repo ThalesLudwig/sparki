@@ -2,16 +2,9 @@ import * as http from 'http';
 import * as healthController from '../controllers/health.controller.js';
 import * as analyzeController from '../controllers/analyze.controller.js';
 import { sendJson } from '../utils/http.js';
+import type { RouteHandler, Route } from '../types/index.js';
 
-export interface RouteHandler {
-  (req: http.IncomingMessage, res: http.ServerResponse): Promise<void> | void;
-}
-
-interface Route {
-  method: string;
-  path: string;
-  handler: RouteHandler;
-}
+export type { RouteHandler, Route } from '../types/index.js';
 
 const routes: Route[] = [
   { method: 'GET', path: '/health', handler: healthController.getHealth },

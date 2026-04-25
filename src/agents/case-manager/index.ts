@@ -9,15 +9,10 @@ import {
 import { parseAnalysis } from './parsers.js';
 import { formatQuestionsAsComment } from './formatters.js';
 import { analyzeDesignAssets } from './design.js';
-import type { TicketAnalysisReport } from '../../types/index.js';
+import type { TicketAnalysisReport, CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 
 export { formatReport } from './formatters.js';
-
-export interface AnalyzeOptions {
-  context?: string;
-  model?: string;
-  postComment?: boolean;
-}
+export type { CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 
 export const analyze = async (
   issueKey: string,

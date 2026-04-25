@@ -1,4 +1,4 @@
-import type { JiraIssue, JiraComment, JiraDescription, JiraContentNode } from '../types/index.js';
+import type { JiraIssue, JiraComment, JiraDescription, JiraContentNode, JiraTransition, JiraAttachment } from '../types/index.js';
 
 const getConfig = () => {
   const baseUrl = process.env.JIRA_BASE_URL;
@@ -197,15 +197,6 @@ export const checkConnection = async (): Promise<boolean> => {
   }
 };
 
-export interface JiraTransition {
-  id: string;
-  name: string;
-  to: {
-    id: string;
-    name: string;
-  };
-}
-
 export const getTransitions = async (issueKey: string): Promise<JiraTransition[]> => {
   const url = buildUrl(`/issue/${issueKey}/transitions`);
 
@@ -295,14 +286,6 @@ export const extractFigmaLinks = (issue: JiraIssue, comments: JiraComment[] = []
 
   return [...new Set(links)];
 };
-
-export interface JiraAttachment {
-  id: string;
-  filename: string;
-  mimeType: string;
-  url: string;
-  size: number;
-}
 
 const IMAGE_MIME_TYPES = [
   'image/png',

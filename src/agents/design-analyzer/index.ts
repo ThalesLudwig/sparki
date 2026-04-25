@@ -7,19 +7,10 @@ import {
   buildImagePrompt,
 } from './prompts/index.js';
 import { parseAnalysis, parseImageAnalysis } from './parsers.js';
-import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode } from '../../types/index.js';
+import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode, DesignAnalyzerOptions as AnalyzeOptions, ImageAnalysisResult } from '../../types/index.js';
 
-export type { ImageAnalysisResult } from './parsers.js';
+export type { DesignAnalyzerOptions as AnalyzeOptions, ImageAnalysisResult } from '../../types/index.js';
 export { formatReport, formatImageAnalysis } from './formatters.js';
-
-export interface AnalyzeOptions {
-  frameIds?: string[];
-  context?: string;
-  maxFrames?: number;
-  imageScale?: number;
-  model?: string;
-  postComments?: boolean;
-}
 
 export const analyze = async (
   fileKeyOrUrl: string,

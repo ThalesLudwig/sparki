@@ -1,13 +1,6 @@
-import type { DesignAnalysisResult } from '../../types/index.js';
+import type { DesignAnalysisResult, ImageAnalysisResult } from '../../types/index.js';
 
-export interface ImageAnalysisResult {
-  imageName: string;
-  description: string;
-  uiElements: string[];
-  specifications: string[];
-  interactions: string[];
-  rawAnalysis: string;
-}
+export type { ImageAnalysisResult } from '../../types/index.js';
 
 export const extractSection = (text: string, sectionName: string): string[] => {
   const regex = new RegExp(`##\\s*${sectionName}[\\s\\S]*?(?=##|$)`, 'i');
