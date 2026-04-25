@@ -28,7 +28,7 @@ Convert ALL visual details from design analysis into concrete values:
 
 ## Technical Context
 - Repository/codebase to modify (if specified)
-- Relevant files or components (if mentioned)
+- Relevant files or components (ONLY if mentioned - don't presume)
 - Dependencies or integrations
 
 ## Acceptance Criteria

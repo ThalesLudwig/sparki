@@ -7,15 +7,15 @@ import {
   buildImagePrompt,
 } from './prompts/index.js';
 import { parseAnalysis, parseImageAnalysis } from './parsers.js';
-import type { DesignAnalysisResult, DesignAnalysisReport, FigmaNode, DesignAnalyzerOptions as AnalyzeOptions, ImageAnalysisResult } from '../../types/index.js';
+import type { DesignAnalysisResult, FigmaNode, DesignAnalyzerOptions as AnalyzeOptions, ImageAnalysisResult } from '../../types/index.js';
 
 export type { DesignAnalyzerOptions as AnalyzeOptions, ImageAnalysisResult } from '../../types/index.js';
-export { formatReport, formatImageAnalysis } from './formatters.js';
+export { formatImageAnalysis } from './formatters.js';
 
 export const analyze = async (
   fileKeyOrUrl: string,
   options: AnalyzeOptions = {}
-): Promise<DesignAnalysisReport> => {
+) => {
   const {
     frameIds: specifiedFrameIds,
     context,
@@ -88,20 +88,7 @@ export const analyze = async (
     }
   }
 
-  return {
-    fileKey,
-    fileName: file.name,
-    analyzedAt: new Date().toISOString(),
-    totalFramesFound: allFrames.length,
-    totalFramesAnalyzed: analyses.length,
-    analyses,
-    summary: {
-      totalAmbiguities: analyses.reduce((sum, a) => sum + a.ambiguities.length, 0),
-      totalMissingSpecs: analyses.reduce((sum, a) => sum + a.missingSpecs.length, 0),
-      totalQuestions: analyses.reduce((sum, a) => sum + a.questions.length, 0),
-      totalSuggestions: analyses.reduce((sum, a) => sum + a.suggestions.length, 0),
-    },
-  };
+  return { analyses };
 };
 
 export const analyzeImage = async (

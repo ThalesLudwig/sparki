@@ -9,15 +9,13 @@ import {
 import { parseAnalysis } from './parsers.js';
 import { formatQuestionsAsComment } from './formatters.js';
 import { analyzeDesignAssets } from './design.js';
-import type { TicketAnalysisReport, CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
-
-export { formatReport } from './formatters.js';
+import type { CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 export type { CaseManagerAnalyzeOptions as AnalyzeOptions } from '../../types/index.js';
 
 export const analyze = async (
   issueKey: string,
   options: AnalyzeOptions = {}
-): Promise<TicketAnalysisReport> => {
+) => {
   const { model, postComment = false } = options;
 
   // Move ticket to In Progress
@@ -88,14 +86,5 @@ export const analyze = async (
   console.log(implementationPrompt);
   console.log('='.repeat(60));
 
-  return {
-    issueKey,
-    summary: issue.fields.summary,
-    issueType: issue.fields.issuetype.name,
-    status: issue.fields.status.name,
-    analyzedAt: new Date().toISOString(),
-    analysis,
-    commentPosted,
-    commentId,
-  };
+  return { analysis, commentPosted, commentId };
 };
