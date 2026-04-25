@@ -1,29 +1,25 @@
 export const buildUserPrompt = (ticketContent: string): string => `
-Analyze this Jira engineering ticket and identify what information is STILL missing for an AI engineering agent to implement it.
+Analyze this Jira ticket:
 
 ${ticketContent}
 
-CRITICAL INSTRUCTIONS:
-1. Read the ENTIRE ticket including ALL comments carefully
-2. Information provided in comments counts as answered - do NOT ask for it again
-3. Only list information that is genuinely NOT present anywhere in the ticket or comments
-4. If a question was asked before and answered in a comment, that information is now available
+⚠️ CHECK COMMENTS FIRST - they contain answers to previous questions.
+"No need for X", "just use Y", "presume Z" = ANSWERED, not missing.
 
-Provide your analysis in this exact format:
+Respond in this format:
 
 ## Completeness Assessment
-State whether the ticket has enough information to begin implementation (YES/NO) and briefly explain why. Consider ALL information from both the description AND comments.
+Can implementation start? (YES/NO) and brief reason.
+If there's a mockup/screenshot and clear description, the answer is usually YES.
 
-## Missing Information
-For each piece of information that is STILL missing (not answered anywhere), use this format:
-- [CATEGORY] (importance): Description of what's missing
+## Missing Information (only if truly blocking)
+- [CATEGORY] (importance): What's missing
 
-Categories: Repository, Technical Specs, UI/UX, Business Logic, Dependencies, Testing, Design
+If the ticket has enough info to start, write: "None - ready to implement."
 
-If all critical information has been provided (in description or comments), write "None - all critical information has been provided."
-
-## Questions for Ticket Author
-List ONLY questions that have NOT been answered in the description or comments. If all questions have been answered, write "None - all questions have been answered."
+## Questions (only if critical)
+Only list questions about core functionality that cannot be inferred.
+If none, write: "None."
 
 ## Recommendations
-Suggestions for improving the ticket or things to consider during implementation.`;
+Brief suggestions for implementation.`;

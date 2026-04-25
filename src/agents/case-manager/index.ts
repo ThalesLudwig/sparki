@@ -33,7 +33,10 @@ export const analyze = async (
   console.log(`   Type: ${issue.fields.issuetype.name} | Status: ${issue.fields.status.name}`);
 
   console.log('💬 Fetching comments...');
-  const comments = await jira.getIssueComments(issueKey);
+  const allComments = await jira.getIssueComments(issueKey);
+  const comments = allComments.filter(
+    (c) => !jira.extractTextFromDescription(c.body).includes('[SPARKI Logger]')
+  );
 
   let ticketContent = jira.formatIssueForAnalysis(issue, comments);
 
@@ -44,11 +47,8 @@ export const analyze = async (
   }
 
   console.log('\n🤖 Analyzing ticket with AI...');
-  const rawAnalysis = await ollama.chat(
-    SYSTEM_PROMPT,
-    buildUserPrompt(ticketContent),
-    model
-  );
+  const userPrompt = buildUserPrompt(ticketContent);
+  const rawAnalysis = await ollama.chat(SYSTEM_PROMPT, userPrompt, model);
   const analysis = parseAnalysis(rawAnalysis, issueKey, issue.fields.summary);
 
   console.log(`\n📊 Analysis complete: ${analysis.isComplete ? '✅ Yes' : '❌ No'}`);
