@@ -22,8 +22,6 @@ export const postAnalyze = async (
       return;
     }
 
-    console.log(`\n📥 Webhook received for: ${issueKey}`);
-
     sendJson(res, 202, {
       status: 'accepted',
       message: `Analysis started for ${issueKey}`,
@@ -32,7 +30,6 @@ export const postAnalyze = async (
 
     analysisService.runAnalysis(issueKey);
   } catch (error) {
-    console.error('❌ Webhook error:', error);
     sendJson(res, 500, { error: 'Internal server error' });
   }
 };
